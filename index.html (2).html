@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selamat Ulang Tahun Sayang ❤️ - Special LDR Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            950: '#050914',
+                            900: '#0B132B',
+                            800: '#1C2541',
+                            700: '#3A506B',
+                        },
+                        gold: {
+                            300: '#FDE047',
+                            400: '#F7C59F',
+                            500: '#E0A96D',
+                            600: '#C7823B',
+                        },
+                        romance: {
+                            500: '#EC4899',
+                            600: '#DB2777',
+                            800: '#9D174D',
+                            900: '#500724',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Cinzel"', 'serif'],
+                        cursive: ['"Great Vibes"', 'cursive'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #050914 0%, #0F172A 40%, #2A0820 100%);
+            color: #E2E8F0;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050914;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E0A96D;
+            border-radius: 4px;
+        }
+
+        /* Glowing Effects */
+        .glow-gold {
+            box-shadow: 0 0 25px rgba(224, 169, 109, 0.35);
+        }
+        .glow-text {
+            text-shadow: 0 0 15px rgba(224, 169, 109, 0.7), 0 0 30px rgba(236, 72, 153, 0.4);
+        }
+        .glow-pink {
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(28, 37, 65, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(224, 169, 109, 0.22);
+        }
+
+        /* Flame animation */
+        @keyframes flicker {
+            0%, 100% { transform: scale(1) rotate(-1deg); opacity: 0.9; }
+            50% { transform: scale(1.18) rotate(2deg); opacity: 1; filter: drop-shadow(0 0 12px #ff9d00); }
+        }
+        .animate-flicker {
+            animation: flicker 0.8s infinite ease-in-out;
+        }
+
+        /* Pulse line for map connection */
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -40;
+            }
+        }
+        .ldr-line {
+            stroke-dasharray: 8, 8;
+            animation: dash 2s linear infinite;
+        }
+
+        /* Floating Animation */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(1deg); }
+        }
+        .animate-float {
+            animation: floatSlow 5s ease-in-out infinite;
+        }
+
+        /* Sound Wave Animation */
+        .bar-anim {
+            animation: soundWave 1.2s ease-in-out infinite alternate;
+        }
+        @keyframes soundWave {
+            0% { height: 4px; }
+            100% { height: 18px; }
+        }
+
+        /* Polaroid Hover */
+        .polaroid-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .polaroid-card:hover {
+            transform: translateY(-8px) rotate(0deg) scale(1.02);
+            box-shadow: 0 15px 30px rgba(236, 72, 153, 0.25);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen relative selection:bg-gold-500 selection:text-navy-950">
+
+    <!-- Interactive Stars Canvas Background -->
+    <canvas id="starsCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+    <!-- Hidden YouTube API Player container -->
+    <div id="youtube-player" class="hidden"></div>
+
+    <!-- Music Player Floating Widget -->
+    <div class="fixed top-4 right-4 z-50">
+        <div id="musicContainer" class="glass-card px-4 py-2.5 rounded-full flex items-center gap-3 border border-gold-500/40 shadow-2xl transition-all duration-300">
+            <!-- Animated Soundwave Equalizer -->
+            <div id="soundWave" class="hidden flex items-end gap-1 h-5 w-5">
+                <span class="w-1 bg-gold-400 rounded-full bar-anim" style="animation-delay: 0.1s"></span>
+                <span class="w-1 bg-pink-400 rounded-full bar-anim" style="animation-delay: 0.3s"></span>
+                <span class="w-1 bg-gold-400 rounded-full bar-anim" style="animation-delay: 0.2s"></span>
+            </div>
+            
+            <button id="musicToggleBtn" onclick="toggleMusic()" class="flex items-center gap-2 text-gold-400 hover:text-white transition-colors">
+                <i id="musicIcon" class="fa-solid fa-compact-disc text-xl text-gold-400"></i>
+                <span id="musicText" class="text-xs font-semibold tracking-wider uppercase">Putar "Tunggal Eka" 🎵</span>
+            </button>
+
+            <button id="muteBtn" onclick="toggleMute()" class="hidden text-xs text-gray-400 hover:text-gold-400 pl-1 border-l border-gold-500/30">
+                <i id="muteIcon" class="fa-solid fa-volume-high"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="relative z-10 max-w-4xl mx-auto px-4 py-8 md:py-14 space-y-20">
+
+        <!-- SECTION 1: HERO & GREETING -->
+        <section class="text-center space-y-6 pt-6">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card border border-gold-500/30 text-gold-400 text-xs md:text-sm tracking-widest uppercase animate-float">
+                <span>✨ Happy Birthday To My Favorite Boy ✨</span>
+            </div>
+            
+            <h1 class="text-4xl md:text-7xl font-serif font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-pink-200 to-gold-500 glow-text leading-tight">
+                Selamat Ulang Tahun,<br><span class="font-cursive text-6xl md:text-8xl font-normal text-pink-400 drop-shadow-lg">Sayangku ❤️</span>
+            </h1>
+            
+            <p class="text-gray-300 max-w-xl mx-auto text-sm md:text-base leading-relaxed px-4 font-light">
+                "Jarak ratusan kilometer mungkin memisahkan fisik kita hari ini, tetapi setiap detak jantung dan doa-doaku selalu bermuara padamu."
+            </p>
+
+            <!-- LDR Distance Visualizer -->
+            <div class="pt-4">
+                <div class="glass-card p-6 rounded-3xl max-w-lg mx-auto relative overflow-hidden border border-gold-500/30 shadow-2xl">
+                    <div class="flex items-center justify-between text-xs font-semibold text-gold-400 uppercase tracking-widest mb-4">
+                        <span><i class="fa-solid fa-wifi text-pink-400 animate-pulse"></i> LDR Connection Active</span>
+                        <span id="liveClock" class="font-mono text-gray-400">00:00:00</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between relative z-10 my-2">
+                        <!-- Location A: Her -->
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="w-14 h-14 rounded-full bg-pink-900/60 border-2 border-pink-500 flex items-center justify-center text-pink-400 text-2xl shadow-lg shadow-pink-500/30 animate-pulse">
+                                <i class="fa-solid fa-heart"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-gray-200">Magetan 📍</span>
+                        </div>
+
+                        <!-- Pulse Connection Line SVG -->
+                        <div class="flex-1 px-4 relative flex items-center justify-center">
+                            <svg class="w-full h-10" viewBox="0 0 200 30">
+                                <path d="M 10,15 Q 100,-5 190,15" fill="none" stroke="rgba(224, 169, 109, 0.2)" stroke-width="2"/>
+                                <path d="M 10,15 Q 100,-5 190,15" fill="none" stroke="#EC4899" stroke-width="2.5" class="ldr-line"/>
+                            </svg>
+                            <div class="absolute -top-1 bg-navy-900/90 text-gold-400 border border-gold-500/40 text-[10px] px-3 py-1 rounded-full font-mono shadow-md">
+                                Connected by Heart 💖
+                            </div>
+                        </div>
+
+                        <!-- Location B: Him -->
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="w-14 h-14 rounded-full bg-blue-900/60 border-2 border-blue-400 flex items-center justify-center text-blue-400 text-2xl shadow-lg shadow-blue-500/30 animate-pulse">
+                                <i class="fa-solid fa-user-astronaut"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-gray-200">Tangerang 📍</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-gray-700/50 text-xs text-gray-300 italic flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-quote-left text-gold-500/50"></i>
+                        <span>Berapapun jauh jaraknya, kamu adalah tempat hatiku berpulang.</span>
+                        <i class="fa-solid fa-quote-right text-gold-500/50"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 1.5: SONG & LYRICS CARD (Denny Caknan - Tunggal Eka) -->
+        <section class="glass-card rounded-3xl p-6 md:p-8 space-y-6 border border-gold-500/30 shadow-2xl relative overflow-hidden bg-gradient-to-br from-navy-900/90 via-navy-800/80 to-romance-900/40">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                
+                <!-- Song Info -->
+                <div class="flex items-center gap-4 text-left w-full md:w-auto">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-500 to-gold-500 p-0.5 shadow-xl shrink-0">
+                        <div class="w-full h-full bg-navy-950 rounded-[14px] flex items-center justify-center text-gold-400 text-2xl">
+                            <i class="fa-solid fa-music animate-pulse"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold tracking-widest text-pink-400 bg-pink-500/10 px-2.5 py-1 rounded-full border border-pink-500/30">Lagu Ulang Tahun Spesial 🎵</span>
+                        <h3 class="text-xl md:text-2xl font-bold text-white mt-1">Tunggal Eka</h3>
+                        <p class="text-xs text-gold-400">Denny Caknan • Ungkapan Doa & Rasa Cinta</p>
+                    </div>
+                </div>
+
+                <!-- Play Button Action -->
+                <button onclick="toggleMusic()" class="w-full md:w-auto px-6 py-3 rounded-full bg-gradient-to-r from-gold-500 to-pink-500 text-navy-950 font-bold text-xs uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-circle-play text-lg"></i>
+                    <span id="lyricPlayBtnText">Putar Musik Sekarang</span>
+                </button>
+            </div>
+
+            <!-- Romantic Lyric Highlight Box -->
+            <div class="bg-navy-950/70 p-6 rounded-2xl border border-gold-500/20 text-center space-y-3">
+                <i class="fa-solid fa-quote-left text-2xl text-gold-500/40"></i>
+                <p class="font-cursive text-2xl md:text-3xl text-gold-300 leading-relaxed glow-text">
+                    "Tak usahake panyuwunmu... Tak pasrahke jantung atiku...<br>
+                    Sing apik-apik ya sayang, ning dino istimewa iki...<br>
+                    Dongaku langgeng tresno abadi ❤️"
+                </p>
+                <div class="text-xs text-gray-300 pt-2 border-t border-gold-500/10 font-light italic">
+                    "Di hari istimewa ini, doaku semoga cinta kita senantiasa kekal dan abadi selamanya."
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: VIRTUAL BIRTHDAY CAKE & BLOW CANDLE -->
+        <section class="glass-card rounded-3xl p-8 text-center space-y-6 relative overflow-hidden shadow-2xl border border-pink-500/20">
+            <div class="inline-block px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-400 text-xs font-semibold uppercase tracking-wider">
+                Special Moment 🎂
+            </div>
+            <h2 class="text-2xl md:text-4xl font-serif text-white">Make A Wish & Tiup Lilinnya</h2>
+            <p class="text-xs md:text-sm text-gray-300 max-w-md mx-auto">
+                Tutup matamu sejenak, bayangkan semua harapan terindahmu, lalu **klik lilin** di bawah untuk meniupnya! ✨
+            </p>
+
+            <!-- Interactive Cake Container -->
+            <div class="py-6 flex flex-col items-center justify-center relative">
+                
+                <div id="cakeContainer" onclick="blowCandle()" class="cursor-pointer group relative transition-transform duration-300 hover:scale-105">
+                    
+                    <!-- Flame -->
+                    <div id="flame" class="w-6 h-8 bg-gradient-to-t from-yellow-500 via-orange-400 to-red-500 rounded-full mx-auto -mb-2 animate-flicker relative z-20 shadow-lg shadow-orange-500/50">
+                        <div class="w-2 h-3 bg-white rounded-full mx-auto mt-1 opacity-80"></div>
+                    </div>
+                    
+                    <!-- Candle Stick -->
+                    <div class="w-4 h-12 bg-gradient-to-r from-pink-300 via-white to-pink-300 mx-auto rounded-t-sm shadow-md border-b border-pink-400 relative z-10">
+                        <div class="w-full h-2 bg-pink-400/30 mt-2"></div>
+                        <div class="w-full h-2 bg-pink-400/30 mt-3"></div>
+                    </div>
+
+                    <!-- Cake Top Tier -->
+                    <div class="w-40 h-14 bg-gradient-to-r from-amber-800 via-amber-700 to-amber-900 rounded-t-xl border-b-4 border-amber-950 shadow-inner relative flex justify-around px-2 pt-1">
+                        <!-- Cream drips -->
+                        <div class="w-4 h-5 bg-pink-100 rounded-b-full"></div>
+                        <div class="w-6 h-7 bg-pink-100 rounded-b-full"></div>
+                        <div class="w-5 h-4 bg-pink-100 rounded-b-full"></div>
+                        <div class="w-6 h-6 bg-pink-100 rounded-b-full"></div>
+                    </div>
+
+                    <!-- Cake Base Tier -->
+                    <div class="w-56 h-18 bg-gradient-to-r from-romance-900 via-pink-900 to-romance-900 rounded-t-lg border-b-8 border-gold-600/40 shadow-xl flex items-center justify-center relative">
+                        <span class="text-xs font-serif text-gold-300 tracking-widest uppercase font-bold">Happy Birthday My Love</span>
+                    </div>
+
+                    <!-- Cake Plate -->
+                    <div class="w-72 h-4 bg-gradient-to-r from-gray-300 via-white to-gray-400 rounded-full shadow-2xl -mt-1 mx-auto"></div>
+                </div>
+
+                <!-- Status Message -->
+                <div id="cakeStatus" class="mt-6 text-sm font-medium text-gold-400 flex items-center justify-center gap-2 bg-navy-900/60 px-4 py-2 rounded-full border border-gold-500/20">
+                    <i class="fa-solid fa-hand-pointer animate-bounce text-pink-400"></i> Klik lilin untuk meniup!
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: STORY OF US (Kisah Pertama Ketemu hingga Layar Kecil) -->
+        <section class="space-y-8">
+            <div class="text-center space-y-2">
+                <span class="text-xs font-semibold text-gold-400 uppercase tracking-widest">A Journey of Love 📖</span>
+                <h2 class="text-3xl md:text-4xl font-serif text-white">Jejak Langkah Cerita Kita</h2>
+                <p class="text-xs md:text-sm text-gray-300 max-w-lg mx-auto">
+                    Dari degupan jantung saat pertama kali tatap muka, hingga ribuan tawa canda di balik layar ponsel kecil kita.
+                </p>
+            </div>
+
+            <!-- Timeline Items -->
+            <div class="space-y-8 relative before:absolute before:inset-0 before:left-1/2 before:-ml-px before:w-0.5 before:bg-gradient-to-b before:from-pink-500/0 before:via-gold-500/40 before:to-pink-500/0">
+                
+                <!-- Timeline 1: Pertama Kali Bertemu -->
+                <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gold-400 bg-navy-900 text-gold-400 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                        <i class="fa-solid fa-sparkles"></i>
+                    </div>
+                    <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] glass-card p-6 rounded-2xl border border-gold-500/30 shadow-xl space-y-3">
+                        <div class="flex items-center justify-between text-xs text-gold-400 font-mono">
+                            <span>Momen Pertama Bertemu 🤝</span>
+                            <span>Awal Mula ❤️</span>
+                        </div>
+                        <h3 class="text-xl font-serif font-bold text-white">Pertama Kali Tatap Mata</h3>
+                        <p class="text-xs md:text-sm text-gray-300 leading-relaxed font-light">
+                            Masih ingat betul perasaan canggung dan senyum malu-malu saat kita pertama kali berhadapan secara langsung. Hari itu, tatapan matamu dan kehangatan hadirmu langsung meyakinkanku bahwa kamu adalah seseorang yang sangat spesial dan tempat hatiku berlabuh.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Timeline 2: Layar Kecil / VC & Sleep Call -->
+                <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-pink-500 bg-navy-900 text-pink-400 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                    </div>
+                    <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] glass-card p-6 rounded-2xl border border-pink-500/30 shadow-xl space-y-3">
+                        <div class="flex items-center justify-between text-xs text-pink-400 font-mono">
+                            <span>Tawa & Canda di Ponsel 📱</span>
+                            <span>LDR Story ✨</span>
+                        </div>
+                        <h3 class="text-xl font-serif font-bold text-white">Hangatnya Layar Ponsel Kita</h3>
+                        <p class="text-xs md:text-sm text-gray-300 leading-relaxed font-light">
+                            Meski terpisah puluhan hingga ratusan kilometer, layar kecil ponsel kita menjadi saksi bisu tawa canda bersama. Dari *video call* konyol dengan ekspresi muka lucu, gosip harian, hingga *sleep call* tempat kita saling menemani sampai tertidur pulas.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Timeline 3: Harapan Waktu Temu -->
+                <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gold-400 bg-navy-900 text-gold-400 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                        <i class="fa-solid fa-plane-arrival"></i>
+                    </div>
+                    <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] glass-card p-6 rounded-2xl border border-gold-500/30 shadow-xl space-y-3">
+                        <div class="flex items-center justify-between text-xs text-gold-400 font-mono">
+                            <span>Menuju Waktu Temu ✈️️</span>
+                            <span>Masa Depan 💫</span>
+                        </div>
+                        <h3 class="text-xl font-serif font-bold text-white">Janji Pelukan Mendatang</h3>
+                        <p class="text-xs md:text-sm text-gray-300 leading-relaxed font-light">
+                            Setiap hari LDR membawa kita satu langkah lebih dekat ke hari di mana kita tak perlu lagi mengucap selamat malam lewat layar ponsel. Terima kasih sudah selalu sabar, setia, dan menjadi alasan terbaikku untuk selalu tersenyum.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 4: MEMORY PHOTO GALLERY & DRIVE LINK -->
+        <section class="space-y-6">
+            <div class="text-center space-y-2">
+                <span class="text-xs font-semibold text-pink-400 uppercase tracking-widest">Galeri Foto Kenangan 📸</span>
+                <h2 class="text-3xl font-serif text-white">Momen Manis Dalam Bingkai</h2>
+                <p class="text-xs text-gray-300 max-w-md mx-auto">
+                    Kumpulan senyum, tawa, dan kenangan indah yang tersimpan rapi.
+                </p>
+            </div>
+
+            <!-- Polaroid Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                
+                <!-- Polaroid Frame 1 -->
+                <div class="polaroid-card bg-white/90 p-4 rounded-xl shadow-xl text-navy-950 transform -rotate-2 hover:rotate-0">
+                    <div class="overflow-hidden rounded-lg h-52 bg-navy-900 relative">
+                        <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=600&q=80" alt="Pertama Ketemu" class="w-full h-full object-cover">
+                        <div class="absolute top-2 right-2 bg-pink-600/80 text-white text-[10px] px-2 py-0.5 rounded-full font-sans">
+                            Awal Bertemu ❤️
+                        </div>
+                    </div>
+                    <div class="pt-3 text-center">
+                        <p class="font-cursive text-2xl text-pink-700 font-bold">Momen Pertama Ketemu</p>
+                        <p class="text-[11px] text-gray-600 font-medium">Awal dari semua cerita indah kita</p>
+                    </div>
+                </div>
+
+                <!-- Polaroid Frame 2 -->
+                <div class="polaroid-card bg-white/90 p-4 rounded-xl shadow-xl text-navy-950 transform rotate-2 hover:rotate-0">
+                    <div class="overflow-hidden rounded-lg h-52 bg-navy-900 relative">
+                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80" alt="VC Layar Ponsel" class="w-full h-full object-cover">
+                        <div class="absolute top-2 right-2 bg-blue-600/80 text-white text-[10px] px-2 py-0.5 rounded-full font-sans">
+                            VC & Sleep Call 📱
+                        </div>
+                    </div>
+                    <div class="pt-3 text-center">
+                        <p class="font-cursive text-2xl text-blue-800 font-bold">Tawa Lewat Layar Ponsel</p>
+                        <p class="text-[11px] text-gray-600 font-medium">Bicara berjam-jam tanpa terasa waktu</p>
+                    </div>
+                </div>
+
+                <!-- Polaroid Frame 3 -->
+                <div class="polaroid-card bg-white/90 p-4 rounded-xl shadow-xl text-navy-950 transform -rotate-1 hover:rotate-0 sm:col-span-2 md:col-span-1">
+                    <div class="overflow-hidden rounded-lg h-52 bg-navy-900 relative">
+                        <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=600&q=80" alt="Senyum Bahagia" class="w-full h-full object-cover">
+                        <div class="absolute top-2 right-2 bg-amber-600/80 text-white text-[10px] px-2 py-0.5 rounded-full font-sans">
+                            Always You ✨
+                        </div>
+                    </div>
+                    <div class="pt-3 text-center">
+                        <p class="font-cursive text-2xl text-amber-800 font-bold">Senyum Favoritku</p>
+                        <p class="text-[11px] text-gray-600 font-medium">Alasan terbaik aku tersenyum setiap hari</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Direct Link Google Drive Banner -->
+            <div class="glass-card p-6 rounded-2xl border border-gold-500/40 text-center space-y-4 max-w-xl mx-auto shadow-xl bg-gradient-to-r from-navy-900/80 via-navy-800/80 to-romance-900/40">
+                <div class="w-12 h-12 bg-gold-500/20 text-gold-400 border border-gold-500/40 rounded-full flex items-center justify-center mx-auto text-2xl shadow-lg">
+                    <i class="fa-brands fa-google-drive"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">Album Memories Google Drive</h3>
+                    <p class="text-xs text-gray-300 mt-1">
+                        Klik tombol di bawah ini untuk melihat seluruh galeri foto & video penuh kenangan kita di Google Drive!
+                    </p>
+                </div>
+                <a href="https://drive.google.com/drive/folders/12HgLBG-mkA_vg-IwH7N5tkqrvkbLnVlS" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-gold-500 to-amber-600 text-navy-950 font-bold text-xs uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition-all">
+                    <i class="fa-solid fa-folder-open text-base"></i>
+                    <span>Buka Album Google Drive 📂</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- SECTION 5: DIGITAL LOVE LETTER ENVELOPE -->
+        <section class="space-y-6">
+            <div class="text-center">
+                <span class="text-xs font-semibold text-gold-400 uppercase tracking-widest">Surat Cinta LDR 💌</span>
+                <h2 class="text-3xl font-serif text-white mt-1">Pesan Dari Dalam Hati</h2>
+            </div>
+
+            <!-- Envelope Card -->
+            <div class="max-w-xl mx-auto">
+                <div id="envelopeCard" onclick="toggleEnvelope()" class="glass-card rounded-3xl p-6 border border-gold-500/30 cursor-pointer transition-all duration-500 hover:shadow-2xl hover:shadow-pink-500/10 relative overflow-hidden group">
+                    
+                    <!-- Closed Envelope View -->
+                    <div id="envelopeClosed" class="py-12 text-center space-y-4">
+                        <div class="w-20 h-20 bg-pink-500/10 border-2 border-pink-500/40 rounded-full flex items-center justify-center mx-auto text-pink-400 text-3xl group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-envelope-open-text"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-serif font-bold text-white">Untuk Pacar Terbaikku</h3>
+                            <p class="text-xs text-gold-400 mt-1">Klik di sini untuk membuka & membaca surat ini ✨</p>
+                        </div>
+                    </div>
+
+                    <!-- Opened Envelope Content -->
+                    <div id="envelopeOpen" class="hidden space-y-4 text-left p-2 md:p-4">
+                        <div class="flex items-center justify-between border-b border-gold-500/20 pb-3">
+                            <span class="font-cursive text-3xl text-pink-400">Dearest, My Love</span>
+                            <span class="text-[10px] text-gold-400 bg-gold-500/10 px-3 py-1 rounded-full border border-gold-500/20">LDR Birthday Letter</span>
+                        </div>
+                        
+                        <div class="text-sm md:text-base text-gray-200 leading-relaxed space-y-3 font-sans font-light">
+                            <p>
+                                Selamat ulang tahun ya, sayang! Di hari yang luar biasa ini, doa pertamaku adalah semoga kamu selalu diberikan kesehatan, kelancaran dalam segala urusan, kebahagiaan yang melimpah, dan pencapaian mimpi-mimpimu.
+                            </p>
+                            <p>
+                                Terima kasih sudah hadir dalam hidupku dan menjadi pasangan yang luar biasa sabar, dewasa, serta penyayang. Meskipun kita sering kali terpisah oleh jarak dan hanya bisa saling menyapa lewat layar ponsel, rasa cintaku tidak pernah berkurang sedikit pun.
+                            </p>
+                            <p>
+                                Terima kasih untuk setiap *video call* tanpa henti, tawa canda di tengah kesibukanmu, dan perhatian kecil yang selalu berhasil membuat hariku lebih hangat. LDR ini membuktikan betapa kuatnya ikatan kita.
+                            </p>
+                            <p>
+                                Aku tidak sabar menunggu hari di mana kita bisa merayakan ulang tahunmu secara langsung, duduk berdampingan, dan saling melempar senyum tanpa penghalang layar.
+                            </p>
+                            <div class="pt-4 border-t border-gold-500/20">
+                                <p class="font-cursive text-2xl text-gold-400">
+                                    Dengan seluruh cintaku,<br>
+                                    <span class="text-pink-400 font-semibold">Pacarmu yang selalu merindukanmu ❤️</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="text-center pt-4">
+                            <button onclick="event.stopPropagation(); toggleEnvelope()" class="text-xs text-gray-400 hover:text-gold-400 underline">
+                                Tutup Surat ✉️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: INTERACTIVE LOVE COUPONS -->
+        <section class="space-y-6">
+            <div class="text-center space-y-2">
+                <span class="text-xs font-semibold text-pink-400 uppercase tracking-widest">Kupon Hadiah LDR 🎟️</span>
+                <h2 class="text-3xl font-serif text-white">Voucher Spesial Untukmu</h2>
+                <p class="text-xs text-gray-300 max-w-md mx-auto">Pilih dan redeem kupon di bawah ini kapan pun kamu mau!</p>
+            </div>
+
+            <!-- Coupons Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Coupon 1 -->
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-pink-500 flex flex-col justify-between space-y-4 hover:border-gold-500 transition-all shadow-lg">
+                    <div class="flex items-start justify-between">
+                        <div class="space-y-1">
+                            <span class="text-[10px] uppercase font-bold tracking-wider text-pink-400 bg-pink-500/10 px-2 py-0.5 rounded">Unlimited Call</span>
+                            <h3 class="font-bold text-white text-base">Free Call & Video Call Tanpa Batas</h3>
+                            <p class="text-xs text-gray-300">Bebas telponan seharian penuh sampai kamu tertidur lelap.</p>
+                        </div>
+                        <div class="text-2xl text-pink-400"><i class="fa-solid fa-phone-volume"></i></div>
+                    </div>
+                    <button onclick="claimCoupon('Free Call & Video Call Tanpa Batas')" class="w-full py-2 bg-gradient-to-r from-pink-600 to-pink-800 text-white text-xs font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow">
+                        Redeem Kupon 🎁
+                    </button>
+                </div>
+
+                <!-- Coupon 2 -->
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-gold-500 flex flex-col justify-between space-y-4 hover:border-gold-500 transition-all shadow-lg">
+                    <div class="flex items-start justify-between">
+                        <div class="space-y-1">
+                            <span class="text-[10px] uppercase font-bold tracking-wider text-gold-400 bg-gold-500/10 px-2 py-0.5 rounded">Virtual Date</span>
+                            <h3 class="font-bold text-white text-base">Makan Malam Virtual Bareng</h3>
+                            <p class="text-xs text-gray-300">Aku pesan makanan favoritmu, lalu kita dinner via VC.</p>
+                        </div>
+                        <div class="text-2xl text-gold-400"><i class="fa-solid fa-utensils"></i></div>
+                    </div>
+                    <button onclick="claimCoupon('Makan Malam Virtual Bareng')" class="w-full py-2 bg-gradient-to-r from-gold-600 to-gold-800 text-white text-xs font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow">
+                        Redeem Kupon 🎁
+                    </button>
+                </div>
+
+                <!-- Coupon 3 -->
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-blue-500 flex flex-col justify-between space-y-4 hover:border-gold-500 transition-all shadow-lg">
+                    <div class="flex items-start justify-between">
+                        <div class="space-y-1">
+                            <span class="text-[10px] uppercase font-bold tracking-wider text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">Movie Night</span>
+                            <h3 class="font-bold text-white text-base">Nonton Film Online Bersama</h3>
+                            <p class="text-xs text-gray-300">Pilih film favoritmu, kita watch party malam ini!</p>
+                        </div>
+                        <div class="text-2xl text-blue-400"><i class="fa-solid fa-film"></i></div>
+                    </div>
+                    <button onclick="claimCoupon('Nonton Film Online Bersama')" class="w-full py-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white text-xs font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow">
+                        Redeem Kupon 🎁
+                    </button>
+                </div>
+
+                <!-- Coupon 4 -->
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-purple-500 flex flex-col justify-between space-y-4 hover:border-gold-500 transition-all shadow-lg">
+                    <div class="flex items-start justify-between">
+                        <div class="space-y-1">
+                            <span class="text-[10px] uppercase font-bold tracking-wider text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">Special Wish</span>
+                            <h3 class="font-bold text-white text-base">Peluk & Cium saat Pertama Ketemu</h3>
+                            <p class="text-xs text-gray-300">Voucher pelukan hangat tanpa batas saat waktu temu tiba.</p>
+                        </div>
+                        <div class="text-2xl text-purple-400"><i class="fa-solid fa-heart-circle-check"></i></div>
+                    </div>
+                    <button onclick="claimCoupon('Peluk & Cium saat Pertama Ketemu Nanti')" class="w-full py-2 bg-gradient-to-r from-purple-600 to-purple-800 text-white text-xs font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow">
+                        Redeem Kupon 🎁
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 7: WHATSAPP DIRECT ACTION -->
+        <section class="glass-card rounded-3xl p-8 text-center space-y-6 border border-pink-500/30 shadow-2xl">
+            <div class="w-16 h-16 bg-green-500/20 text-green-400 border border-green-500/40 rounded-full flex items-center justify-center mx-auto text-3xl shadow-lg shadow-green-500/20">
+                <i class="fa-brands fa-whatsapp"></i>
+            </div>
+            
+            <div class="space-y-2">
+                <h2 class="text-2xl font-serif text-white">Kirim Balasan Pesan ke Aku</h2>
+                <p class="text-xs md:text-sm text-gray-300 max-w-md mx-auto">
+                    Terima kasih sudah membuka website ucapan ulang tahun ini! Klik tombol di bawah untuk langsung terhubung ke WhatsApp-ku ya sayang ❤️
+                </p>
+            </div>
+
+            <a id="waButton" href="#" target="_blank" class="inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-sm shadow-xl hover:shadow-green-500/30 hover:scale-105 active:scale-95 transition-all">
+                <i class="fa-brands fa-whatsapp text-xl"></i>
+                <span>Balas via WhatsApp Now</span>
+            </a>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-xs text-gray-500 pt-6">
+            Made with ❤️ for the most special person in my life.
+        </footer>
+
+    </main>
+
+    <!-- YouTube IFrame API Script -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script>
+        // CONFIGURATION: Nomor WA (Format internasional tanpa + atau 0)
+        const YOUR_PHONE_NUMBER = "6285806940034"; 
+
+        // Set Default WhatsApp Link
+        const defaultWAMessage = encodeURIComponent("Makasih banyak ya sayang buat website ucapan ulang tahun LDR & lagu Tunggal Eka yang indah banget ini! Aku bahagia banget ❤️🥰");
+        document.getElementById('waButton').href = `https://wa.me/${YOUR_PHONE_NUMBER}?text=${defaultWAMessage}`;
+
+        // 1. YOUTUBE PLAYER INTEGRATION (Denny Caknan - Tunggal Eka: 827HSYJX5uw)
+        let ytPlayer = null;
+        let isMusicPlaying = false;
+        let isMuted = false;
+
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('youtube-player', {
+                height: '0',
+                width: '0',
+                videoId: '827HSYJX5uw', // Official Video ID: Denny Caknan - Tunggal Eka
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 0,
+                    'loop': 1,
+                    'playlist': '827HSYJX5uw'
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            console.log("YouTube Player (Tunggal Eka) Ready!");
+        }
+
+        function onPlayerStateChange(event) {
+            const musicIcon = document.getElementById('musicIcon');
+            const musicText = document.getElementById('musicText');
+            const lyricPlayBtnText = document.getElementById('lyricPlayBtnText');
+            const soundWave = document.getElementById('soundWave');
+            const muteBtn = document.getElementById('muteBtn');
+
+            if (event.data === YT.PlayerState.PLAYING) {
+                isMusicPlaying = true;
+                musicIcon.classList.add('animate-spin');
+                musicText.innerText = "Pause Musik";
+                if(lyricPlayBtnText) lyricPlayBtnText.innerText = "Jeda Musik";
+                soundWave.classList.remove('hidden');
+                muteBtn.classList.remove('hidden');
+            } else {
+                isMusicPlaying = false;
+                musicIcon.classList.remove('animate-spin');
+                musicText.innerText = "Putar 'Tunggal Eka' 🎵";
+                if(lyricPlayBtnText) lyricPlayBtnText.innerText = "Putar Musik Sekarang";
+                soundWave.classList.add('hidden');
+            }
+        }
+
+        function toggleMusic() {
+            if (!ytPlayer || typeof ytPlayer.playVideo !== 'function') {
+                alert("Memuat lagu Denny Caknan - Tunggal Eka, mohon tunggu sebentar...");
+                return;
+            }
+
+            if (!isMusicPlaying) {
+                ytPlayer.playVideo();
+            } else {
+                ytPlayer.pauseVideo();
+            }
+        }
+
+        function toggleMute() {
+            if (!ytPlayer) return;
+            const muteIcon = document.getElementById('muteIcon');
+            
+            if (isMuted) {
+                ytPlayer.unMute();
+                isMuted = false;
+                muteIcon.className = "fa-solid fa-volume-high";
+            } else {
+                ytPlayer.mute();
+                isMuted = true;
+                muteIcon.className = "fa-solid fa-volume-xmark text-red-400";
+            }
+        }
+
+        // 2. LIVE CLOCK
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const clockElem = document.getElementById('liveClock');
+            if (clockElem) clockElem.innerText = timeString + " WIB";
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 3. STARFIELD CANVAS BACKGROUND
+        const canvas = document.getElementById('starsCanvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Star {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedX = (Math.random() - 0.5) * 0.2;
+                this.speedY = (Math.random() - 0.5) * 0.2;
+                this.opacity = Math.random();
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+
+                this.opacity += (Math.random() - 0.5) * 0.05;
+                if (this.opacity < 0.1) this.opacity = 0.1;
+                if (this.opacity > 1) this.opacity = 1;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(247, 197, 159, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 120; i++) {
+            stars.push(new Star());
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+            requestAnimationFrame(animateStars);
+        }
+        animateStars();
+
+        // 4. CANDLE BLOW INTERACTION & CONFETTI
+        let candleBlown = false;
+        function blowCandle() {
+            if (candleBlown) return;
+            
+            const flame = document.getElementById('flame');
+            const cakeStatus = document.getElementById('cakeStatus');
+
+            flame.style.transition = 'all 0.5s ease';
+            flame.style.opacity = '0';
+            flame.style.transform = 'scale(0)';
+
+            cakeStatus.innerHTML = "✨ YAY! Semoga semua prapun impianmu terkabul sayang! ❤️ ✨";
+            cakeStatus.classList.remove('text-gold-400');
+            cakeStatus.classList.add('text-pink-400', 'font-bold');
+
+            candleBlown = true;
+
+            // Trigger Fireworks / Confetti
+            confetti({
+                particleCount: 140,
+                spread: 90,
+                origin: { y: 0.6 },
+                colors: ['#E0A96D', '#F7C59F', '#EC4899', '#3B82F6']
+            });
+        }
+
+        // 5. ENVELOPE FLIP TOGGLE
+        function toggleEnvelope() {
+            const envelopeClosed = document.getElementById('envelopeClosed');
+            const envelopeOpen = document.getElementById('envelopeOpen');
+
+            if (envelopeOpen.classList.contains('hidden')) {
+                envelopeClosed.classList.add('hidden');
+                envelopeOpen.classList.remove('hidden');
+            } else {
+                envelopeOpen.classList.add('hidden');
+                envelopeClosed.classList.remove('hidden');
+            }
+        }
+
+        // 6. COUPON CLAIM FUNCTION
+        function claimCoupon(couponTitle) {
+            const message = encodeURIComponent(`Sayang, aku mau redeem voucher kado LDR ini dong: "${couponTitle}" ❤️🎁`);
+            window.open(`https://wa.me/${YOUR_PHONE_NUMBER}?text=${message}`, '_blank');
+        }
+
+        // STARTUP HOOK
+        window.onload = function() {
+            console.log("LDR Birthday Page Loaded Successfully!");
+        };
+    </script>
+</body>
+</html>
